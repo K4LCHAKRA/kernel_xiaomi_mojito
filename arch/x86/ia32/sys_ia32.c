@@ -234,12 +234,16 @@ asmlinkage long sys32_fallocate(int fd, int mode, unsigned offset_lo,
 {
 	struct kernel_clone_args args = {
 		.flags		= (clone_flags & ~CSIGNAL),
+		.pidfd		= parent_tidptr,
 		.child_tid	= child_tidptr,
 		.parent_tid	= parent_tidptr,
 		.exit_signal	= (clone_flags & CSIGNAL),
 		.stack		= newsp,
 		.tls		= tls_val,
 	};
+
+	if (!legacy_clone_args_valid(&args))
+		return -EINVAL;
 
 	return _do_fork(&args);
 }
